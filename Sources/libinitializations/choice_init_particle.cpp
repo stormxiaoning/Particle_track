@@ -87,7 +87,7 @@ Choice_init_particle::Choice_init_particle(Parameters & par)
   }
 }
 
-void Choice_init_particle::initialization(TAB & particle_x,TAB & particle_y,TAB & particle_count){
+void Choice_init_particle::initialization(TAB & particle){
   
   /**
    * @details
@@ -97,7 +97,7 @@ void Choice_init_particle::initialization(TAB & particle_x,TAB & particle_y,TAB 
    * @param[in] particle_count friction choice.
    */
   
-  particle_init->initialization(particle_x,particle_y,particle_count);
+  particle_init->initialization(particle);
 }
 
 Choice_init_particle::~Choice_init_particle(){

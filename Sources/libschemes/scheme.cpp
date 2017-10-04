@@ -95,7 +95,7 @@ Scheme::Scheme(Parameters &par)
 
   // Initialization of particle_x, particle_y and particle_count
   particle_init = new Choice_init_particle(par);
-  particle_init->initialization(particle_x, particle_y, particle_count);
+  particle_init->initialization(particle);
 
   Vol_of_tot = 0.;
 
@@ -178,7 +178,7 @@ Scheme::Scheme(Parameters &par)
   out->initial(z, h, u, v);
 
   // storage of the particle_x,particle_y and particle_count.
-  out->initial_particle(particle_x, particle_y, particle_count);
+  out->initial_particle(particle);
 
   // storage the initialization of the main variables
   out->write(h, u, v, z, cur_time);
@@ -631,6 +631,36 @@ void Scheme::boundary(TAB &h_tmp, TAB &u_tmp, TAB &v_tmp, SCALAR time_tmp,
   } // end for i
 }
 
+void Scheme::particle_du(TAB &x, TAB &y, TAB &ve1, TAB &ve2, TAB &du1, TAB &du2, TAB &dv1, TAB &dv2) {
+
+  /**
+   * @details
+   * Calculate the first and second velocity difference for each cell
+   * @param[in] x the x coordinate of particle.
+   * @param[in] y the y coordinate of particle.
+   * @param[in] ve1 first component of the velocity.
+   * @param[in] ve2 second component of the velocity.
+   * @param[out] du1 first component of the velocity difference in positive x
+   * direction.
+   * @param[out] du2 first component of the velocity difference in negtive x
+   * direction.
+   * @param[out] dv1 second component of the velocity difference in positive y
+   * direction.
+   * @param[out] dv2 second component of the velocity difference in negtive y
+   * direction.
+   *
+   */
+  
+  for (int i = 1; i < NXCELL + 1; i++) {
+    for (int j = 1; j < NYCELL + 1; j++) {
+      du1[i][j] = (ve1[i + 1][j] - ve1[i][j]) / DX;
+      du2[i][j] = (ve1[i - 1][j] - ve1[i][j]) / DX;
+      dv1[i][j] = (ve2[i + 1][j] - ve1[i][j]) / DY;
+      dv2[i][j] = (ve2[i - 1][j] - ve1[i][j]) / DY;
+    }
+  }
+}
+
 SCALAR Scheme::froude_number(TAB h_s, TAB u_s, TAB v_s) {
 
   /**
@@ -687,10 +717,14 @@ void Scheme::allocation() {
   h.resize(NXCELL + 2);  // i : 0->NXCELL+1
   u.resize(NXCELL + 2);  // i : 0->NXCELL+1
   v.resize(NXCELL + 2);  // i : 0->NXCELL+1
-  particle_x.resize(NXCELL+2);  // i : 0->NXCELL+1
-  particle_y.resize(NXCELL+2);  // i : 0->NXCELL+1
-  particle_count.resize(NXCELL+2);  // i : 0->NXCELL+1
-
+  particle.resize(NXCELL*NYCELL);  //  i :0->NXCELL+2
+  cout << "the size of the z is: "<<z.size()<<endl;
+  cout << "the size of the particle is: "<<particle.size()<<endl;
+  for (int i = 1; i <= NXCELL*NYCELL; i++) {
+    particle[i].resize(3);
+  }
+  cout << "the size of the particle[1] is: "<<particle[1].size()<<endl;
+  cout << "the size of the particle[560] is: "<<particle[560].size()<<endl;
 
   q1.resize(NXCELL + 1); // i : 1->NXCELL
   q2.resize(NXCELL + 1); // i : 1->NXCELL
@@ -734,10 +768,6 @@ void Scheme::allocation() {
   u[0].resize(NYCELL + 2);       // j : 0->NYCELL+1
   v[0].resize(NYCELL + 2);       // j : 0->NYCELL+1
 
-  particle_x[0].resize(NYCELL+2);  // j : 0->NYCELL+1
-  particle_y[0].resize(NYCELL+2);  // j : 0->NYCELL+1
-  particle_count[0].resize(NYCELL+2);  // j : 0->NYCELL+1
-  
   hs[0].resize(NYCELL + 2);      // j : 0->NYCELL+1
   us[0].resize(NYCELL + 2);      // j : 0->NYCELL+1
   vs[0].resize(NYCELL + 2);      // j : 0->NYCELL+1
@@ -753,10 +783,6 @@ void Scheme::allocation() {
     h[i].resize(NYCELL + 2);    // j : 0->NYCELL+1
     u[i].resize(NYCELL + 2);    // j : 0->NYCELL+1
     v[i].resize(NYCELL + 2);    // j : 0->NYCELL+1
-
-    particle_x[i].resize(NYCELL+2);  // j : 0->NYCELL+1
-    particle_y[i].resize(NYCELL+2);  // j : 0->NYCELL+1
-    particle_count[i].resize(NYCELL+2);  // j : 0->NYCELL+1
 
     q1[i].resize(NYCELL + 1); // j : 1->NYCELL
     q2[i].resize(NYCELL + 1); // j : 1->NYCELL
@@ -807,10 +833,6 @@ void Scheme::allocation() {
   u[NXCELL + 1].resize(NYCELL + 2);    // j : 0->NYCELL+1
   v[NXCELL + 1].resize(NYCELL + 2);    // j : 0->NYCELL+1
 
-  particle_x[NXCELL + 1].resize(NYCELL+2);  // j : 0->NYCELL+1
-  particle_y[NXCELL + 1].resize(NYCELL+2);  // j : 0->NYCELL+1
-  particle_count[NXCELL + 1].resize(NYCELL+2);  // j : 0->NYCELL+1
-
   hs[NXCELL + 1].resize(NYCELL + 2);   // j : 0->NYCELL+1
   us[NXCELL + 1].resize(NYCELL + 2);   // j : 0->NYCELL+1
   vs[NXCELL + 1].resize(NYCELL + 2);   // j : 0->NYCELL+1
@@ -856,9 +878,9 @@ void Scheme::deallocation() {
   h[0].clear();
   u[0].clear();
   v[0].clear();
-  particle_x[0].clear();
-  particle_y[0].clear();
-  particle_count[0].clear();
+  for (int i = 1; i <= NXCELL*NYCELL; i++) {
+    particle[i].clear();
+  }
 
   hs[0].clear();
   us[0].clear();
@@ -877,9 +899,6 @@ void Scheme::deallocation() {
     h[i].clear();
     u[i].clear();
     v[i].clear();
-    particle_x[i].clear();
-    particle_y[i].clear();
-    particle_count[i].clear();
 
     q1[i].clear();
     q2[i].clear();
@@ -921,9 +940,6 @@ void Scheme::deallocation() {
   h[NXCELL + 1].clear();
   u[NXCELL + 1].clear();
   v[NXCELL + 1].clear();
-  particle_x[NXCELL + 1].clear();
-  particle_y[NXCELL + 1].clear();
-  particle_count[NXCELL + 1].clear();
 
   hs[NXCELL + 1].clear();
   us[NXCELL + 1].clear();
@@ -940,10 +956,8 @@ void Scheme::deallocation() {
   h.clear();
   u.clear();
   v.clear();
-  particle_x.clear();
-  particle_y.clear();
-  particle_count.clear();
-  
+  particle.clear();
+
   q1.clear();
   q2.clear();
   hs.clear();

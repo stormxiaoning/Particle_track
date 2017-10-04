@@ -69,7 +69,7 @@ Particle_read::Particle_read(Parameters &par) : Initialization_particle(par)
   particle_namefile = par.get_particleNameFile();
 }
 
-void Particle_read::initialization(TAB &particle_x, TAB &particle_y, TAB &particle_count)
+void Particle_read::initialization(TAB &particle)
 {
 
   /**
@@ -105,9 +105,9 @@ void Particle_read::initialization(TAB &particle_x, TAB &particle_y, TAB &partic
 
   //Initialization of rainfall choice to the largest finite representable floating-point number.
   //So that we will be able to check that the user fills the variables r, i and f properly.
-  for (int i=1 ; i<NXCELL+1 ; i++){
-    for (int j=1 ; j<NYCELL+1 ; j++){
-      particle_x[i][j]=MAX_SCAL;
+  for (int i=1 ; i<NXCELL*NYCELL ; i++){
+    for (int j=1 ; j<=3 ; j++){
+      particle[i][j]=MAX_SCAL;
     } //end for j
   } //end for i
 
@@ -172,10 +172,11 @@ void Particle_read::initialization(TAB &particle_x, TAB &particle_y, TAB &partic
       }
 
       //Store the input values into the particle_x, particle_y and particle_count arrays.
-
-      particle_x[row][column] = x;
-      particle_y[row][column] = y;
-      particle_count[row][column] = count;
+      cout << "num_lin is:  " << num_lin<< endl; 
+      particle[num_lin][1]= x;
+      particle[num_lin][2]= y;
+      particle[num_lin][3]= count;
+      cout << "particle coordinate count " << count <<"x coordinate is " << x<<"y coordinate is "<<y<<endl; 
     }
     else
     {
@@ -200,11 +201,11 @@ void Particle_read::initialization(TAB &particle_x, TAB &particle_y, TAB &partic
   }
 
   //Final check: Does all the grid cells were filled with a value?
-  for (int i = 1; i < NXCELL + 1; i++)
+  for (int i = 1; i < NXCELL*NYCELL; i++)
   {
-    for (int j = 1; j < NYCELL + 1; j++)
+    for (int j = 1; j <= 3; j++)
     {
-      if (particle_count[i][j] >= MAX_SCAL)
+      if (particle[i][j] >= MAX_SCAL)
       {
         cerr << particle_namefile << ": ERROR: the value for the point x =" << (i - 0.5) * DX << " y = " << (j - 0.5) * DY << " is missing!" << endl;
         exit(EXIT_FAILURE);

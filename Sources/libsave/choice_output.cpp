@@ -143,7 +143,7 @@ void Choice_output::initial(const TAB & z, const TAB & h, const TAB & u, const T
   
 }
 
-void Choice_output::initial_particle(const TAB & particle_x, const TAB & particle_y, const TAB & particle_count) const
+void Choice_output::initial_particle(const TAB & particle) const
 {
   /**
    * @details
@@ -152,7 +152,7 @@ void Choice_output::initial_particle(const TAB & particle_x, const TAB & particl
    * @param[in] particle_y particle y coordinate.
    * @param[in] particle_count particle count number.
   */
-  out->initial_particle(particle_x, particle_y, particle_count);
+  out->initial_particle(particle);
 }
 
 void Choice_output::final(const TAB & z, const TAB & h, const TAB & u, const TAB & v) const{

@@ -87,7 +87,7 @@ class Output{
     void initial(const TAB &, const TAB &, const TAB &, const TAB &) const;
     
     /** @brief saved the particle_x,particle_y,particle_count*/
-    void initial_particle(const TAB &, const TAB &, const TAB &) const;
+    void initial_particle(const TAB &) const;
 
     /** @brief Saves the final time */
     void final(const TAB &, const TAB &, const TAB &, const TAB &) const;

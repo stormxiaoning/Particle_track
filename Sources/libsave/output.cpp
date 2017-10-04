@@ -223,13 +223,13 @@ void Output::initial(const TAB &z, const TAB &h, const TAB &u, const TAB &v) con
   initial.close();
 }
 
-void Output::initial_particle(const TAB &particle_x, const TAB & particle_y, const TAB & particle_count) const
+void Output::initial_particle(const TAB &particle) const
 {
   /**
   * @details
-  * @param[in] particle_x particle x coordinate.
-  * @param[in] particle_y particle y coordinate.
-  * @param[in] particle_count particle count number.
+  * @param[in] particle[i][1] x particle x coordinate.
+  * @param[in] particle[i][2] particle y coordinate.
+  * @param[in] particle[i][3] particle count number.
   * @warring Impossible to open the *** file. Verify if the directory *** exists.
   * @note If particle.txt cannot be opened, the code will exit with failure termination code.
   */
@@ -245,12 +245,12 @@ void Output::initial_particle(const TAB &particle_x, const TAB & particle_y, con
   initial_particle << "################################################################## "<< endl;
   initial_particle << "# (i-0.5)*dx" << "\t" << "(j-0.5)*dy" << "\t" <<setw(9) << "Particle x coordinate" << "\t" <<setw(9) << "Particle y coordinate" << "\t" <<setw(9)<< "Particle count" << endl;
 
-  for (int i = 1; i <= NXCELL; i++)
-  {
-    for (int j = 1; j <=NYCELL; j++)
-    {
-      initial_particle << (i-0.5)*DX << "\t" <<(j-0.5)*DY << "\t" <<setw(9) << particle_x[i][j] << "\t" <<setw(9) << particle_y[i][j] << "\t" <<setw(9) << particle_count[i][j] << endl;
-    }//End of j loop.
+  for (int i = 1; i <= NXCELL * NYCELL; i++) {
+    for (int j = 1; j <= 3; j++) {
+      initial_particle << setw(9) << "\t"
+                       << "Particle number" << i << "\t" << setw(9)
+                       << particle[i][j] << endl;
+    }
     initial_particle << endl;
   }//End of i loop.
   initial_particle.close();

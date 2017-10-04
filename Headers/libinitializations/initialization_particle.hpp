@@ -86,7 +86,7 @@ public:
   Initialization_particle(Parameters &);
 
   /** @brief Function to be specified in each initialization */
-  virtual void initialization(TAB &, TAB &, TAB &) = 0;
+  virtual void initialization(TAB &) = 0;
 
   /** @brief Destructor */
   virtual ~Initialization_particle();

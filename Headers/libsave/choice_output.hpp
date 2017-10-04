@@ -101,7 +101,7 @@ class Choice_output{
     void initial(const TAB &, const TAB &, const TAB &, const TAB &) const;
 
     /** @brief saves the initial rainfall, infiltration and friction choice.*/
-    void initial_particle(const TAB &, const TAB &, const TAB &) const;
+    void initial_particle(const TAB &) const;
     
     /** @brief Saves the final time */
     void final(const TAB &, const TAB &, const TAB &, const TAB &) const;

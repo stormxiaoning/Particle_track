@@ -141,6 +141,8 @@ class Scheme{
     
     /** @brief Calls the boundary conditions and affects the boundary values */
     void boundary(TAB &,TAB &,TAB &, SCALAR,const int , const int);
+
+    void particle_du(TAB &, TAB &, TAB &, TAB &, TAB &, TAB &, TAB &, TAB &);
     
     /** @brief Returns the Froude number */
     SCALAR froude_number(TAB,TAB,TAB);
@@ -246,12 +248,8 @@ class Scheme{
     TAB u;
     /** Second component of the velocity.*/
     TAB v;
-    /** particle x of each cell.*/
-    TAB particle_x;
-    /** particle y of each cell.*/
-    TAB particle_y;
-    /** particle count of each cell.*/
-    TAB particle_count;
+    /** particle.*/
+    TAB particle;
     /** First component of the discharge.*/
     TAB q1;
     /** Second component of the discharge.*/
