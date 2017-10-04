@@ -180,6 +180,8 @@ class Scheme{
     SCALAR T_output;
     /** Time step to save the data (evolution file).*/
     SCALAR dt_output;
+    /** Number of particles in the domain. */
+    int par_sum;
     /** Friction coefficient. */
     const SCALAR FRICCOEF;
     /** Imposed discharge on the left boundary.*/

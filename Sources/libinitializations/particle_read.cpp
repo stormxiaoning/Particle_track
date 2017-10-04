@@ -6,7 +6,7 @@
  * @date 2015-02-19
  *
  * @brief File configuration
- * @details 
+ * @details
  * Initialization of the rainfall, infiltration and friction choice:
  * the values are read in a file.
  *
@@ -15,12 +15,12 @@
  *
  * (c) CNRS - Universite d'Orleans - BRGM (France)
  */
-/* 
+/*
  *
- * This file is part of FullSWOF_2D software. 
- * <https://sourcesup.renater.fr/projects/fullswof-2d/> 
+ * This file is part of FullSWOF_2D software.
+ * <https://sourcesup.renater.fr/projects/fullswof-2d/>
  *
- * FullSWOF_2D = Full Shallow-Water equations for Overland Flow, 
+ * FullSWOF_2D = Full Shallow-Water equations for Overland Flow,
  * in two dimensions of space.
  * This software is a computer program whose purpose is to compute
  * solutions for 2D Shallow-Water equations.
@@ -57,11 +57,10 @@
 
 #include "particle_read.hpp"
 
-Particle_read::Particle_read(Parameters &par) : Initialization_particle(par)
-{
+Particle_read::Particle_read(Parameters &par) : Initialization_particle(par) {
 
   /**
-   * @details   
+   * @details
    * Defines the name of the file for the initialization.
    * @param[in] par parameter, contains all the values from the parameters file.
    */
@@ -69,151 +68,163 @@ Particle_read::Particle_read(Parameters &par) : Initialization_particle(par)
   particle_namefile = par.get_particleNameFile();
 }
 
-void Particle_read::initialization(TAB &particle)
-{
+void Particle_read::initialization(TAB &particle_rd, int &particle_sum) {
 
   /**
    * @details
-   * Initializes the rainfall, infiltration and friction choice to the values read in the corresponding file.
-   * @param[in, out] particle_x particle_x coordinate.
-   * @param[in, out] particle_y particle_y coordinate.
-   * @param[in, out] particle_count particle count numbers.
+   * Initializes the rainfall, infiltration and friction choice to the values
+   * read in the corresponding file.
+   * @param[in, out] particle_rd[i][1] particle_x coordinate.
+   * @param[in, out] particle_rd[i][2] particle_y coordinate.
+   * @param[in, out] particle_rd[i][3] particle count numbers.
+   * @param[out] particle_sum The total particle numbers.
    * @warning (particle_namefile): ERROR: cannot open the particle file.
-   * @warning (particle_namefile): ERROR: the number of data in this file is too big
+   * @warning (particle_namefile): ERROR: the number of data in this file is too
+   * big
    * @warning (particle_namefile): ERROR: line ***.
    * @warning (particle_namefile): WARNING: line ***.
-   * @warning (particle_namefile): ERROR: the number of data in this file is too small
-   * @warning (particle_namefile): ERROR: the value for the point x *** y *** is missing
-   * @note If the file cannot be opened or if the data are not correct, the code will exit with failure termination code.
+   * @warning (particle_namefile): ERROR: the number of data in this file is too
+   * small
+   * @warning (particle_namefile): ERROR: the value for the point x *** y *** is
+   * missing
+   * @note If the file cannot be opened or if the data are not correct, the code
+   * will exit with failure termination code.
    */
 
-  SCALAR x, y, count;
+  SCALAR x, y;
+  int p_count;
   int row, column;
-  int it = 0;      //iterator
-  int num_lin = 0; //iterator
-  string line;     // string to store a line of the input file
-  char car;        //First character of a commentary line
-
-  //Opening the file and verification if it exists.
+  int it = 0;       // iterator
+  int num_lin = 0;  // iterator
+  string line;      // string to store a line of the input file
+  char car;         // First character of a commentary line
+  particle_sum = 0; // The initial particle sum
+  // Opening the file and verification if it exists.
   ifstream getdata(particle_namefile.c_str(), ios::in);
-  if (!getdata)
-  {
-    //The input file cannot be opened.
-    cerr << particle_namefile << ": ERROR: cannot open the particle file\n";
+  if (!getdata) {
+    // The input file cannot be opened.
+    cerr << particle_namefile << ": ERROR: cannot open the particle_rd file\n";
     exit(EXIT_FAILURE);
   }
 
-  //Initialization of rainfall choice to the largest finite representable floating-point number.
-  //So that we will be able to check that the user fills the variables r, i and f properly.
-  for (int i=1 ; i<NXCELL*NYCELL ; i++){
-    for (int j=1 ; j<=3 ; j++){
-      particle[i][j]=MAX_SCAL;
-    } //end for j
-  } //end for i
+  // Initialization of rainfall choice to the largest finite representable
+  // floating-point number.  So that we will be able to check that the user fills
+  // the variables r, i and f properly.
+  for (int i = 1; i < NXCELL * NYCELL; i++) {
+    for (int j = 1; j <= 3; j++) {
+      particle_rd[i][j] = MAX_SCAL;
+    } // end for j
+  }   // end for i
 
   // As long as the end of the file is not reached, the next line is read.
-  while (!getdata.eof())
-  {
+  while (!getdata.eof()) {
     num_lin++;
     getline(getdata, line, '\n'); // read a line
     istringstream entree(line);
-    if (entree >> x >> y >> count)
-    {
-      //Check that the input file contains the expected number of data.
-      if (++it > NXCELL * NYCELL)
-      {
-        cerr << particle_namefile << ": ERROR: the number of data in this file is too big!" << endl;
+    if (entree >> x >> y >> p_count) {
+      // Check that the input file contains the expected number of data.
+      if (++it > NXCELL * NYCELL) {
+        cerr << particle_namefile
+             << ": ERROR: the number of data in this file is too big!" << endl;
         exit(EXIT_FAILURE);
       }
-      //We compute the index of the r, i and f arrays from the space variable in the input file.
+      // We compute the index of the r, i and f arrays from the space variable
+      // in the input file.
       row = (int)ceil(x / DX);
-      column = (int)ceil(y / DY); //The index corresponds to the smallest integer superior or equal to x/DX or y/DY.
+      column = (int)ceil(y / DY); // The index corresponds to the smallest
+                                  // integer superior or equal to x/DX or y/DY.
 
-      //Error if the x or y value of the input file is out of the domain.
-      if (x < 0)
-      {
-        cerr << particle_namefile << ": ERROR: line " << num_lin << ", x = " << x << " must be positive." << endl;
+      // Error if the x or y value of the input file is out of the domain.
+      if (x < 0) {
+        cerr << particle_namefile << ": ERROR: line " << num_lin
+             << ", x = " << x << " must be positive." << endl;
         exit(EXIT_FAILURE);
       }
-      if (y < 0)
-      {
-        cerr << particle_namefile << ": ERROR: line " << num_lin << ", y = " << y << " must be positive." << endl;
+      if (y < 0) {
+        cerr << particle_namefile << ": ERROR: line " << num_lin
+             << ", y = " << y << " must be positive." << endl;
         exit(EXIT_FAILURE);
       }
-      if (x > NXCELL * DX)
-      {
-        cerr << particle_namefile << ": ERROR: line " << num_lin << ", x = " << x << " must be lower than " << NXCELL * DX << "." << endl;
+      if (x > NXCELL * DX) {
+        cerr << particle_namefile << ": ERROR: line " << num_lin
+             << ", x = " << x << " must be lower than " << NXCELL * DX << "."
+             << endl;
         exit(EXIT_FAILURE);
       }
-      if (y > NYCELL * DY)
-      {
-        cerr << particle_namefile << ": ERROR: at line " << num_lin << ", y = " << y << " must be lower than " << NYCELL * DY << "." << endl;
+      if (y > NYCELL * DY) {
+        cerr << particle_namefile << ": ERROR: at line " << num_lin
+             << ", y = " << y << " must be lower than " << NYCELL * DY << "."
+             << endl;
         exit(EXIT_FAILURE);
       }
 
-      //Error if the x or y value of the input file is not near the center of the cell.
-      if (fabs(x - (row - 0.5) * DX) > DX * RATIO_CLOSE_CELL)
-      {
-        cout << particle_namefile << ": ERROR: line " << num_lin << "; x = " << x << ";\n This value is not close enough to the center of the cell.\n You may want to replace it with " << (row - 0.5) * DX << endl;
+      // Error if the x or y value of the input file is not near the center of
+      // the cell.
+      if (fabs(x - (row - 0.5) * DX) > DX * RATIO_CLOSE_CELL) {
+        cout << particle_namefile << ": ERROR: line " << num_lin
+             << "; x = " << x
+             << ";\n This value is not close enough to the center of the "
+                "cell.\n You may want to replace it with "
+             << (row - 0.5) * DX << endl;
         exit(EXIT_FAILURE);
       }
-      if (fabs(y - (column - 0.5) * DY) > DY * RATIO_CLOSE_CELL)
-      {
+      if (fabs(y - (column - 0.5) * DY) > DY * RATIO_CLOSE_CELL) {
         cout << "column =" << column << endl;
-        cout << particle_namefile << ": ERROR: line " << num_lin << "; y = " << y << ";\n This value is not close enough to the center of the cell.\n You may want to replace it with " << (column - 0.5) * DY << endl;
+        cout << particle_namefile << ": ERROR: line " << num_lin
+             << "; y = " << y
+             << ";\n This value is not close enough to the center of the "
+                "cell.\n You may want to replace it with "
+             << (column - 0.5) * DY << endl;
         exit(EXIT_FAILURE);
       }
 
-      // Error if the rainfall choice count is negative.
-      if (count < 0)
-      {
-        cerr << particle_namefile << ": ERROR: line " << num_lin << "; A NEGATIVE initial rainfall choice was encountered in this file." << endl;
+      // Error if the rainfall choice p_count is negative.
+      if (p_count < 0) {
+        cerr << particle_namefile << ": ERROR: line " << num_lin
+             << "; A NEGATIVE initial rainfall choice was encountered in this "
+                "file."
+             << endl;
         exit(EXIT_FAILURE);
       }
 
-      //Store the input values into the particle_x, particle_y and particle_count arrays.
-      cout << "num_lin is:  " << num_lin<< endl; 
-      particle[num_lin][1]= x;
-      particle[num_lin][2]= y;
-      particle[num_lin][3]= count;
-      cout << "particle coordinate count " << count <<"x coordinate is " << x<<"y coordinate is "<<y<<endl; 
-    }
-    else
-    {
-      car = '#'; //Initialization of the character used to identify the beginning of a comment
+      // Store the input values into the particle_x, particle_y and
+      // particle_count arrays.
+      particle_rd[num_lin][1] = x;
+      particle_rd[num_lin][2] = y;
+      particle_rd[num_lin][3] = p_count;
+      particle_sum += p_count;
+    } else {
+      car = '#'; // Initialization of the character used to identify the
+                 // beginning of a comment
       istringstream entree_car(line);
       entree_car >> car;
-      if (car != '#')
-      {
-        cout << particle_namefile << ": WARNING: line " << num_lin << "; a commentary should begin with the # symbol " << endl;
+      if (car != '#') {
+        cout << particle_namefile << ": WARNING: line " << num_lin
+             << "; a commentary should begin with the # symbol " << endl;
       }
     }
   }
 
-  //Closing the input file
+  // Closing the input file
   getdata.close();
 
-  //Check that the input file contains the expected number of data.
-  if (it < NXCELL * NYCELL)
-  {
-    cerr << particle_namefile << ": ERROR: the number of data in this file is too small!" << endl;
+  // Check that the input file contains the expected number of data.
+  if (it < NXCELL * NYCELL) {
+    cerr << particle_namefile
+         << ": ERROR: the number of data in this file is too small!" << endl;
     exit(EXIT_FAILURE);
   }
-
-  //Final check: Does all the grid cells were filled with a value?
-  for (int i = 1; i < NXCELL*NYCELL; i++)
-  {
-    for (int j = 1; j <= 3; j++)
-    {
-      if (particle[i][j] >= MAX_SCAL)
-      {
-        cerr << particle_namefile << ": ERROR: the value for the point x =" << (i - 0.5) * DX << " y = " << (j - 0.5) * DY << " is missing!" << endl;
+  // Final check: Does all the grid cells were filled with a value?
+  for (int i = 1; i <= NXCELL * NYCELL; i++) {
+    for (int j = 1; j <= 3; j++) {
+      if (particle_rd[i][j] >= MAX_SCAL) {
+        cerr << particle_namefile
+             << ": ERROR: the value for the point x =" << (i - 0.5) * DX
+             << " y = " << (j - 0.5) * DY << " is missing!" << endl;
         exit(EXIT_FAILURE);
       }
-    } //end for j
-  }   //end for i
+    } // end for j
+  }   // end for i
 }
 
-Particle_read::~Particle_read()
-{
-}
+Particle_read::~Particle_read() {}

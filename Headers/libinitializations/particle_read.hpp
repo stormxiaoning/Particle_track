@@ -76,13 +76,14 @@ class Particle_read: public Initialization_particle{
     Particle_read(Parameters &);
     
     /** @brief Performs the initialization */
-    void initialization(TAB &);
+    void initialization(TAB &, int &);
   
     /** @brief Destructor */
     virtual ~Particle_read();
-  
+    int particle_sum;  //Number of particles in the domain.
   private:
     string particle_namefile;
-    TAB particle;
+    TAB particle_rd;
+    
 };
 #endif

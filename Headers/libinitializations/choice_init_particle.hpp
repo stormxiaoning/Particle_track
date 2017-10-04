@@ -99,7 +99,7 @@ class Choice_init_particle
     Choice_init_particle(Parameters &);
   
     /** @brief Performs the initialization */
-    void initialization(TAB &);
+    void initialization(TAB &, int &);
   
     /** @brief Destructor */
     virtual ~Choice_init_particle();

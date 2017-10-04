@@ -87,7 +87,7 @@ Choice_init_particle::Choice_init_particle(Parameters & par)
   }
 }
 
-void Choice_init_particle::initialization(TAB & particle){
+void Choice_init_particle::initialization(TAB & particle, int & par_sum){
   
   /**
    * @details
@@ -97,7 +97,7 @@ void Choice_init_particle::initialization(TAB & particle){
    * @param[in] particle_count friction choice.
    */
   
-  particle_init->initialization(particle);
+  particle_init->initialization(particle,par_sum);
 }
 
 Choice_init_particle::~Choice_init_particle(){

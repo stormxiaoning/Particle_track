@@ -11,6 +11,10 @@
         "xutility": "cpp",
         "iostream": "cpp",
         "xlocale": "cpp",
-        "iosfwd": "cpp"
+        "iosfwd": "cpp",
+        "utility": "cpp",
+        "map": "cpp",
+        "system_error": "cpp",
+        "type_traits": "cpp"
     }
 }

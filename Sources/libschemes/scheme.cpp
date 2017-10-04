@@ -95,7 +95,7 @@ Scheme::Scheme(Parameters &par)
 
   // Initialization of particle_x, particle_y and particle_count
   particle_init = new Choice_init_particle(par);
-  particle_init->initialization(particle);
+  particle_init->initialization(particle,par_sum);
 
   Vol_of_tot = 0.;
 
@@ -631,7 +631,7 @@ void Scheme::boundary(TAB &h_tmp, TAB &u_tmp, TAB &v_tmp, SCALAR time_tmp,
   } // end for i
 }
 
-void Scheme::particle_du(TAB &x, TAB &y, TAB &ve1, TAB &ve2, TAB &du1, TAB &du2, TAB &dv1, TAB &dv2) {
+//void Scheme::particle_du(TAB &x, TAB &y, TAB &ve1, TAB &ve2, TAB &du1, TAB &du2, TAB &dv1, TAB &dv2) {
 
   /**
    * @details
@@ -651,7 +651,7 @@ void Scheme::particle_du(TAB &x, TAB &y, TAB &ve1, TAB &ve2, TAB &du1, TAB &du2,
    *
    */
   
-  for (int i = 1; i < NXCELL + 1; i++) {
+  /*for (int i = 1; i < NXCELL + 1; i++) {
     for (int j = 1; j < NYCELL + 1; j++) {
       du1[i][j] = (ve1[i + 1][j] - ve1[i][j]) / DX;
       du2[i][j] = (ve1[i - 1][j] - ve1[i][j]) / DX;
@@ -659,7 +659,7 @@ void Scheme::particle_du(TAB &x, TAB &y, TAB &ve1, TAB &ve2, TAB &du1, TAB &du2,
       dv2[i][j] = (ve2[i - 1][j] - ve1[i][j]) / DY;
     }
   }
-}
+}*/
 
 SCALAR Scheme::froude_number(TAB h_s, TAB u_s, TAB v_s) {
 
@@ -717,15 +717,10 @@ void Scheme::allocation() {
   h.resize(NXCELL + 2);  // i : 0->NXCELL+1
   u.resize(NXCELL + 2);  // i : 0->NXCELL+1
   v.resize(NXCELL + 2);  // i : 0->NXCELL+1
-  particle.resize(NXCELL*NYCELL);  //  i :0->NXCELL+2
-  cout << "the size of the z is: "<<z.size()<<endl;
-  cout << "the size of the particle is: "<<particle.size()<<endl;
-  for (int i = 1; i <= NXCELL*NYCELL; i++) {
-    particle[i].resize(3);
+  particle.resize(NXCELL*NYCELL+2);  //  i :0->NXCELL*NYCELL+1
+  for (int i = 0; i <= NXCELL*NYCELL+1; i++) {
+    particle[i].resize(4);  //  j :0->3
   }
-  cout << "the size of the particle[1] is: "<<particle[1].size()<<endl;
-  cout << "the size of the particle[560] is: "<<particle[560].size()<<endl;
-
   q1.resize(NXCELL + 1); // i : 1->NXCELL
   q2.resize(NXCELL + 1); // i : 1->NXCELL
 
@@ -878,7 +873,7 @@ void Scheme::deallocation() {
   h[0].clear();
   u[0].clear();
   v[0].clear();
-  for (int i = 1; i <= NXCELL*NYCELL; i++) {
+  for (int i = 0; i <= NXCELL*NYCELL+1; i++) {
     particle[i].clear();
   }
 
